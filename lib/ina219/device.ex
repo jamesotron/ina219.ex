@@ -156,8 +156,10 @@ defmodule INA219.Device do
         -> error
       command, :ok when is_atom(command) ->
         apply(Commands, command, [pid])
-      {a, args}, :ok when is_atom(a) and is_list(args) ->
-        apply(Commands, commands, [pid | args])
+      {command, args}, :ok when is_atom(command) and is_list(args) ->
+        apply(Commands, command, [pid | args])
+      {command, arg}, :ok when is_atom(command) ->
+        apply(Commands, command, [pid, arg])
     end)
   end
 

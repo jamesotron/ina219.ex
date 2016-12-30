@@ -28,7 +28,7 @@ defmodule INA219.Commands do
   `power_divisor` of `2`.
   """
   def calibrate_32V_2A!(pid) do
-    with :ok <- Registers.calibration(pid, 4096),
+    with :ok <- calibrate(pid, 4096),
          :ok <- bus_voltage_range(pid, 32),
          :ok <- shunt_voltage_pga(pid, 8),
          :ok <- bus_adc_resolution_and_averaging(pid, {1, 12}),
@@ -48,7 +48,7 @@ defmodule INA219.Commands do
   `power_divisor` of `1`.
   """
   def calibrate_32V_1A!(pid) do
-    with :ok <- Registers.calibration(pid, 10240),
+    with :ok <- calibrate(pid, 10240),
          :ok <- bus_voltage_range(pid, 32),
          :ok <- shunt_voltage_pga(pid, 8),
          :ok <- bus_adc_resolution_and_averaging(pid, {1, 12}),
@@ -68,7 +68,7 @@ defmodule INA219.Commands do
   `power_divisor` of `1`.
   """
   def calibrate_16V_400mA!(pid) do
-    with :ok <- Registers.calibration(pid, 8192),
+    with :ok <- calibrate(pid, 8192),
          :ok <- bus_voltage_range(pid, 16),
          :ok <- shunt_voltage_pga(pid, 1),
          :ok <- bus_adc_resolution_and_averaging(pid, {1, 12}),
@@ -361,4 +361,9 @@ defmodule INA219.Commands do
   Returns the power in mW
   """
   def power(pid, divisor), do: Registers.power(pid) / divisor
+
+  @doc """
+  Set the calibration value.
+  """
+  def calibrate(pid, value), do: Registers.calibration(pid, value)
 end
