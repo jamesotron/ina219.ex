@@ -1,9 +1,7 @@
 use Mix.Config
 
 config :ina219,
-  bus: "i2c-1",
-  address: 0x41,
-  config: []
+  devices: [%{bus: "i2c-1", address: 0x41, commands: [:calibrate_32V_2A!], current_divisor: 10, power_divisor: 2}]
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

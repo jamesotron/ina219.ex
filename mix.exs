@@ -14,7 +14,7 @@ defmodule INA219.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :elixir_ale],
+    [applications: [:logger, :elixir_ale, :gproc],
      mod: {INA219, []}]
   end
 
@@ -29,7 +29,8 @@ defmodule INA219.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:elixir_ale, "~> 0.5.5"}
+      {:elixir_ale, "~> 0.5.5"},
+      {:gproc,      "~> 0.6.1"}
     ]
   end
 end

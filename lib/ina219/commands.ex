@@ -20,6 +20,66 @@ defmodule INA219.Commands do
   end
 
   @doc """
+  This is a convenient helper function to set the configuration to the right values
+  for 32V input voltage range and 2A current range at the cost of accuracy.
+  This only works for devices with a 0.1Ω shunt resistor (ie Adafruit's breakout).
+
+  Make sure that you configure your device with a `current_divisor` of `10` and a
+  `power_divisor` of `2`.
+  """
+  def calibrate_32V_2A!(pid) do
+    with :ok <- Registers.calibration(pid, 4096),
+         :ok <- bus_voltage_range(pid, 32),
+         :ok <- shunt_voltage_pga(pid, 8),
+         :ok <- bus_adc_resolution_and_averaging(pid, {1, 12}),
+         :ok <- shunt_adc_resolution_and_averaging(pid, {1, 12}),
+         :ok <- mode(pid, :shunt_and_bus_voltage_continuous)
+    do
+      :ok
+    end
+  end
+
+  @doc """
+  This is a convenient helper function to set the configuration to the right values
+  for 32V input voltage range and 1A current range at the cost of accuracy.
+  This only works for devices with a 0.1Ω shunt resistor (ie Adafruit's breakout).
+
+  Make sure that you configure your device with a `current_divisor` of `25` and a
+  `power_divisor` of `1`.
+  """
+  def calibrate_32V_1A!(pid) do
+    with :ok <- Registers.calibration(pid, 10240),
+         :ok <- bus_voltage_range(pid, 32),
+         :ok <- shunt_voltage_pga(pid, 8),
+         :ok <- bus_adc_resolution_and_averaging(pid, {1, 12}),
+         :ok <- shunt_adc_resolution_and_averaging(pid, {1, 12}),
+         :ok <- mode(pid, :shunt_and_bus_voltage_continuous)
+    do
+      :ok
+    end
+  end
+
+  @doc """
+  This is a convenient helper function to set the configuration to the right values
+  for 16V input and 400mA current range at the highest resolution (0.1mA).
+  This only works for devices with a 0.1Ω shunt resistor (ie Adafruit's breakout).
+
+  Make sure that you configure your device with a `current_divisor` of `20` and a
+  `power_divisor` of `1`.
+  """
+  def calibrate_16V_400mA!(pid) do
+    with :ok <- Registers.calibration(pid, 8192),
+         :ok <- bus_voltage_range(pid, 16),
+         :ok <- shunt_voltage_pga(pid, 1),
+         :ok <- bus_adc_resolution_and_averaging(pid, {1, 12}),
+         :ok <- shunt_adc_resolution_and_averaging(pid, {1, 12}),
+         :ok <- mode(pid, :shunt_and_bus_voltage_continuous)
+    do
+      :ok
+    end
+  end
+
+  @doc """
   Retrieve the configured bus voltage range.
   """
   def bus_voltage_range(pid) do
@@ -177,7 +237,6 @@ defmodule INA219.Commands do
     end
   end
 
-
   @doc """
   Set the shunt ADC resolution and averaging.
 
@@ -282,4 +341,24 @@ defmodule INA219.Commands do
       1 -> true
     end
   end
+
+  @doc """
+  Returns the bus voltage in mV.
+  """
+  def bus_voltage(pid), do: ((Registers.bus_voltage(pid) >>> 3) * 4) * 0.001
+
+  @doc """
+  Returns the shunt voltage in mV.
+  """
+  def shunt_voltage(pid), do: Registers.shunt_voltage(pid) * 0.01
+
+  @doc """
+  Returns the current in mA.
+  """
+  def current(pid, divisor), do: Registers.current(pid) / divisor
+
+  @doc """
+  Returns the power in mW
+  """
+  def power(pid, divisor), do: Registers.power(pid) / divisor
 end
